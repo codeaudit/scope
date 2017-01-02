@@ -1,6 +1,5 @@
 import React from 'react';
 import { Map as makeMap } from 'immutable';
-import map from 'lodash/map';
 
 import MatchedText from '../matched-text';
 import ShowMore from '../show-more';
@@ -36,22 +35,44 @@ export default class NodeDetailsGenericTable extends React.Component {
       }
     }
 
+    const headerStyle = {
+      textAlign: 'left'
+    };
+    const cellStyle = {
+      textAlign: 'left',
+      paddingRight: 10,
+      maxWidth: 140
+    };
+
     return (
-      <table className="node-details-generic-table">
-        {rows.map(row => (
-          <tr className="node-details-generic-table-row" key={row.id}>
-            {map(row.entries, (value, column) => (
-              <td className="node-details-generic-table-field-value truncate" title={value}>
-                <MatchedText text={value} match={matches.get(column)} />
-              </td>
+      <div className="node-details-generic-table">
+        <table>
+          <thead>
+            {this.props.columns.map(column => (
+              <th className="node-details-generic-table-header" key={column.id} style={headerStyle}>
+                {column.label}
+              </th>
             ))}
-          </tr>
-        ))}
+          </thead>
+          <tbody>
+            {rows.map(row => (
+              <tr className="node-details-generic-table-row" key={row.id}>
+                {this.props.columns.map(column => (
+                  <td
+                    className="node-details-generic-table-field-value truncate"
+                    title={row.entries[column.id]} key={column.id} style={cellStyle}>
+                    <MatchedText text={row.entries[column.id]} match={matches.get(column.id)} />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
         <ShowMore
           handleClick={this.handleLimitClick} collection={this.props.rows}
           expanded={expanded} notShown={notShown}
         />
-      </table>
+      </div>
     );
   }
 }

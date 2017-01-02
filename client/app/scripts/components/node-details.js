@@ -216,7 +216,7 @@ class NodeDetails extends React.Component {
                     </span>}
                   </div>
                   {table.type === 'multicolumn-table' && <NodeDetailsGenericTable
-                    rows={table.rows}
+                    rows={table.rows} columns={table.columns}
                     matches={nodeMatches.get('tables')}
                   />}
                   {table.type !== 'multicolumn-table' && <NodeDetailsLabels

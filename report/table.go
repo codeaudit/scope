@@ -202,6 +202,11 @@ func (t TableTemplate) Merge(other TableTemplate) TableTemplate {
 		fixedRows = other.FixedRows
 	}
 
+	columns := t.Columns
+	if len(other.Columns) > len(columns) {
+		columns = other.Columns
+	}
+
 	// TODO: Refactor the merging logic, as mixing
 	// the types now might result in invalid tables.
 	return TableTemplate{
@@ -209,6 +214,7 @@ func (t TableTemplate) Merge(other TableTemplate) TableTemplate {
 		Label:     max(t.Label, other.Label),
 		Prefix:    max(t.Prefix, other.Prefix),
 		Type:      max(t.Type, other.Type),
+		Columns:   columns,
 		FixedRows: fixedRows,
 	}
 }
@@ -225,6 +231,7 @@ func (t TableTemplates) Tables(node Node) []Table {
 			ID:              template.ID,
 			Label:           template.Label,
 			Type:            template.Type,
+			Columns:         template.Columns,
 			Rows:            rows,
 			TruncationCount: truncationCount,
 		})
