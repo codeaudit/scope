@@ -2,28 +2,23 @@ import React from 'react';
 import { Map as makeMap } from 'immutable';
 import { sortBy } from 'lodash';
 
+import { isNumber, getColumnsStyles } from '../../utils/node-details-table-utils';
+import NodeDetailsTableHeaders from './node-details-table-headers';
 import MatchedText from '../matched-text';
 import ShowMore from '../show-more';
 
 
-function columnStyle(column) {
-  return {
-    textAlign: column.dataType === 'number' ? 'right' : 'left',
-    paddingRight: '10px',
-    maxWidth: '140px'
-  };
-}
-
-function sortedRows(rows, sortedByColumn, sortedDesc) {
+function sortedRows(rows, columns, sortedBy, sortedDesc) {
+  const column = columns.find(c => c.id === sortedBy);
   const orderedRows = sortBy(rows, row => row.id);
   const sorted = sortBy(orderedRows, (row) => {
-    let value = row.entries[sortedByColumn.id];
-    if (sortedByColumn.dataType === 'number') {
+    let value = row.entries[sortedBy];
+    if (isNumber(column)) {
       value = parseFloat(value);
     }
     return value;
   });
-  if (!sortedDesc) {
+  if (sortedDesc) {
     sorted.reverse();
   }
   return sorted;
@@ -35,18 +30,15 @@ export default class NodeDetailsGenericTable extends React.Component {
     this.DEFAULT_LIMIT = 5;
     this.state = {
       limit: this.DEFAULT_LIMIT,
-      sortedByColumn: props.columns[0],
+      sortedBy: props.columns[0].id,
       sortedDesc: true
     };
     this.handleLimitClick = this.handleLimitClick.bind(this);
+    this.updateSorted = this.updateSorted.bind(this);
   }
 
-  handleHeaderClick(ev, column) {
-    ev.preventDefault();
-    this.setState({
-      sortedByColumn: column,
-      sortedDesc: this.state.sortedByColumn.id === column.id ? !this.state.sortedDesc : true
-    });
+  updateSorted(sortedBy, sortedDesc) {
+    this.setState({ sortedBy, sortedDesc });
   }
 
   handleLimitClick() {
@@ -54,28 +46,8 @@ export default class NodeDetailsGenericTable extends React.Component {
     this.setState({limit});
   }
 
-  renderHeader(column) {
-    const onHeaderClick = (ev) => { this.handleHeaderClick(ev, column); };
-    const isSorted = column.id === this.state.sortedByColumn.id;
-    const isSortedDesc = isSorted && this.state.sortedDesc;
-    const isSortedAsc = isSorted && !isSortedDesc;
-    const style = Object.assign(columnStyle(column), {
-      cursor: 'pointer',
-      fontSize: '11px'
-    });
-    return (
-      <th
-        className="node-details-generic-table-header"
-        key={column.id} style={style} onClick={onHeaderClick}>
-        {isSortedAsc && <span className="node-details-table-header-sorter fa fa-caret-up" />}
-        {isSortedDesc && <span className="node-details-table-header-sorter fa fa-caret-down" />}
-        {column.label}
-      </th>
-    );
-  }
-
   render() {
-    const { sortedByColumn, sortedDesc } = this.state;
+    const { sortedBy, sortedDesc } = this.state;
     const { columns, matches = makeMap() } = this.props;
     let rows = this.props.rows;
     let notShown = 0;
@@ -90,24 +62,28 @@ export default class NodeDetailsGenericTable extends React.Component {
       }
     }
 
+    const styles = getColumnsStyles(columns);
     return (
       <div className="node-details-generic-table">
         <table>
           <thead>
-            <tr>
-              {columns.map(column => this.renderHeader(column))}
-            </tr>
+            <NodeDetailsTableHeaders
+              headers={columns}
+              sortedBy={sortedBy}
+              sortedDesc={sortedDesc}
+              onClick={this.updateSorted}
+            />
           </thead>
           <tbody>
-            {sortedRows(rows, sortedByColumn, sortedDesc).map(row => (
+            {sortedRows(rows, columns, sortedBy, sortedDesc).map(row => (
               <tr className="node-details-generic-table-row" key={row.id}>
-                {columns.map((column) => {
+                {columns.map((column, index) => {
                   const value = row.entries[column.id];
                   const match = matches.get(column.id + row.id);
                   return (
                     <td
                       className="node-details-generic-table-field-value truncate"
-                      title={value} key={column.id} style={columnStyle(column)}>
+                      title={value} key={column.id} style={styles[index]}>
                       <MatchedText text={value} match={match} />
                     </td>
                   );
