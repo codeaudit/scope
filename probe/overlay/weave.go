@@ -121,7 +121,7 @@ var (
 		},
 		WeaveConnectionsMulticolumnTablePrefix: {
 			ID:     WeaveConnectionsMulticolumnTablePrefix,
-			Label:  "Connections2",
+			Label:  "Connections (new)",
 			Type:   report.MulticolumnTableType,
 			Prefix: WeaveConnectionsMulticolumnTablePrefix,
 			Columns: []report.Column{

@@ -35,10 +35,10 @@ export default class NodeDetailsGenericTable extends React.Component {
       }
     }
 
-    const headerStyle = {
+    const thStyle = {
       textAlign: 'left'
     };
-    const cellStyle = {
+    const tdStyle = {
       textAlign: 'left',
       paddingRight: 10,
       maxWidth: 140
@@ -48,11 +48,13 @@ export default class NodeDetailsGenericTable extends React.Component {
       <div className="node-details-generic-table">
         <table>
           <thead>
-            {this.props.columns.map(column => (
-              <th className="node-details-generic-table-header" key={column.id} style={headerStyle}>
-                {column.label}
-              </th>
-            ))}
+            <tr>
+              {this.props.columns.map(column => (
+                <th className="node-details-generic-table-header" key={column.id} style={thStyle}>
+                  {column.label}
+                </th>
+              ))}
+            </tr>
           </thead>
           <tbody>
             {rows.map(row => (
@@ -60,7 +62,7 @@ export default class NodeDetailsGenericTable extends React.Component {
                 {this.props.columns.map(column => (
                   <td
                     className="node-details-generic-table-field-value truncate"
-                    title={row.entries[column.id]} key={column.id} style={cellStyle}>
+                    title={row.entries[column.id]} key={column.id} style={tdStyle}>
                     <MatchedText text={row.entries[column.id]} match={matches.get(column.id)} />
                   </td>
                 ))}
