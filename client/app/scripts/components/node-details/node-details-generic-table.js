@@ -1,18 +1,53 @@
 import React from 'react';
 import { Map as makeMap } from 'immutable';
+import { sortBy } from 'lodash';
 
 import MatchedText from '../matched-text';
 import ShowMore from '../show-more';
 
-export default class NodeDetailsGenericTable extends React.Component {
 
+function columnStyle(column) {
+  return {
+    textAlign: column.dataType === 'number' ? 'right' : 'left',
+    paddingRight: '10px',
+    maxWidth: '140px'
+  };
+}
+
+function sortedRows(rows, sortedByColumn, sortedDesc) {
+  const orderedRows = sortBy(rows, row => row.id);
+  const sorted = sortBy(orderedRows, (row) => {
+    let value = row.entries[sortedByColumn.id];
+    if (sortedByColumn.dataType === 'number') {
+      value = parseFloat(value);
+    }
+    return value;
+  });
+  if (!sortedDesc) {
+    sorted.reverse();
+  }
+  return sorted;
+}
+
+export default class NodeDetailsGenericTable extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.DEFAULT_LIMIT = 5;
     this.state = {
       limit: this.DEFAULT_LIMIT,
+      sortedByColumn: props.columns[0],
+      sortedDesc: true
     };
     this.handleLimitClick = this.handleLimitClick.bind(this);
+  }
+
+  handleHeaderClick(ev, column) {
+    ev.preventDefault();
+    this.setState({
+      sortedByColumn: column,
+      sortedDesc: this.state.sortedByColumn.id === column.id
+        ? !this.state.sortedDesc : true
+    });
   }
 
   handleLimitClick() {
@@ -21,7 +56,8 @@ export default class NodeDetailsGenericTable extends React.Component {
   }
 
   render() {
-    const { matches = makeMap() } = this.props;
+    const { sortedByColumn, sortedDesc } = this.state;
+    const { columns, matches = makeMap() } = this.props;
     let rows = this.props.rows;
     let notShown = 0;
     const limited = rows && this.state.limit > 0 && rows.length > this.state.limit;
@@ -35,37 +71,50 @@ export default class NodeDetailsGenericTable extends React.Component {
       }
     }
 
-    const thStyle = {
-      textAlign: 'left'
-    };
-    const tdStyle = {
-      textAlign: 'left',
-      paddingRight: 10,
-      maxWidth: 140
-    };
-
     return (
       <div className="node-details-generic-table">
         <table>
           <thead>
             <tr>
-              {this.props.columns.map(column => (
-                <th className="node-details-generic-table-header" key={column.id} style={thStyle}>
-                  {column.label}
-                </th>
-              ))}
+              {columns.map((column) => {
+                const onHeaderClick = (ev) => {
+                  this.handleHeaderClick(ev, column);
+                };
+                const isSorted = column.id === this.state.sortedByColumn.id;
+                const isSortedDesc = isSorted && this.state.sortedDesc;
+                const isSortedAsc = isSorted && !isSortedDesc;
+                const style = Object.assign(columnStyle(column), {
+                  cursor: 'pointer',
+                  fontSize: '11px'
+                });
+                return (
+                  <th
+                    className="node-details-generic-table-header"
+                    key={column.id} style={style} onClick={onHeaderClick}>
+                    {isSortedAsc
+                      && <span className="node-details-table-header-sorter fa fa-caret-up" />}
+                    {isSortedDesc
+                      && <span className="node-details-table-header-sorter fa fa-caret-down" />}
+                    {column.label}
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
-            {rows.map(row => (
+            {sortedRows(rows, sortedByColumn, sortedDesc).map(row => (
               <tr className="node-details-generic-table-row" key={row.id}>
-                {this.props.columns.map(column => (
-                  <td
-                    className="node-details-generic-table-field-value truncate"
-                    title={row.entries[column.id]} key={column.id} style={tdStyle}>
-                    <MatchedText text={row.entries[column.id]} match={matches.get(column.id)} />
-                  </td>
-                ))}
+                {columns.map((column) => {
+                  const value = row.entries[column.id];
+                  const match = matches.get(column.id);
+                  return (
+                    <td
+                      className="node-details-generic-table-field-value truncate"
+                      title={value} key={column.id} style={columnStyle(column)}>
+                      <MatchedText text={value} match={match} />
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>
