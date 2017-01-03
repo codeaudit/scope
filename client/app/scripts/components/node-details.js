@@ -246,7 +246,7 @@ class NodeDetails extends React.Component {
         return (
           <NodeDetailsLabels
             rows={table.rows} controls={table.controls}
-            matches={nodeMatches.get('tables')}
+            matches={nodeMatches.get('labels')}
           />
         );
       default:

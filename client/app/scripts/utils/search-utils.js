@@ -148,16 +148,26 @@ export function searchTopology(nodes, { prefix, query, metric, comp, value }) {
         });
       }
 
-      // tables (envvars and labels)
+      // tables and labels
       const tables = node.get('tables');
       if (tables) {
         tables.forEach((table) => {
           if (table.get('rows')) {
-            table.get('rows').forEach((field) => {
-              const entries = field.get('entries');
-              const keyPath = [nodeId, 'tables', field.get('id')];
-              nodeMatches = findNodeMatch(nodeMatches, keyPath, entries.get('value'),
-                query, prefix, entries.get('label'));
+            table.get('rows').forEach((row) => {
+              const entries = row.get('entries');
+              const rowId = row.get('id');
+              if (table.get('type') === 'property-list') {
+                const keyPath = [nodeId, 'labels', rowId];
+                nodeMatches = findNodeMatch(nodeMatches, keyPath, entries.get('value'),
+                  query, prefix, entries.get('label'));
+              } else {
+                table.get('columns').forEach((column) => {
+                  const columnId = column.get('id');
+                  const val = entries.get(columnId);
+                  const keyPath = [nodeId, 'tables', columnId + rowId];
+                  nodeMatches = findNodeMatch(nodeMatches, keyPath, val, query);
+                });
+              }
             });
           }
         });

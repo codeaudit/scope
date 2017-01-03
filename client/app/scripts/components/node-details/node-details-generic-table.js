@@ -45,14 +45,33 @@ export default class NodeDetailsGenericTable extends React.Component {
     ev.preventDefault();
     this.setState({
       sortedByColumn: column,
-      sortedDesc: this.state.sortedByColumn.id === column.id
-        ? !this.state.sortedDesc : true
+      sortedDesc: this.state.sortedByColumn.id === column.id ? !this.state.sortedDesc : true
     });
   }
 
   handleLimitClick() {
     const limit = this.state.limit ? 0 : this.DEFAULT_LIMIT;
     this.setState({limit});
+  }
+
+  renderHeader(column) {
+    const onHeaderClick = (ev) => { this.handleHeaderClick(ev, column); };
+    const isSorted = column.id === this.state.sortedByColumn.id;
+    const isSortedDesc = isSorted && this.state.sortedDesc;
+    const isSortedAsc = isSorted && !isSortedDesc;
+    const style = Object.assign(columnStyle(column), {
+      cursor: 'pointer',
+      fontSize: '11px'
+    });
+    return (
+      <th
+        className="node-details-generic-table-header"
+        key={column.id} style={style} onClick={onHeaderClick}>
+        {isSortedAsc && <span className="node-details-table-header-sorter fa fa-caret-up" />}
+        {isSortedDesc && <span className="node-details-table-header-sorter fa fa-caret-down" />}
+        {column.label}
+      </th>
+    );
   }
 
   render() {
@@ -76,29 +95,7 @@ export default class NodeDetailsGenericTable extends React.Component {
         <table>
           <thead>
             <tr>
-              {columns.map((column) => {
-                const onHeaderClick = (ev) => {
-                  this.handleHeaderClick(ev, column);
-                };
-                const isSorted = column.id === this.state.sortedByColumn.id;
-                const isSortedDesc = isSorted && this.state.sortedDesc;
-                const isSortedAsc = isSorted && !isSortedDesc;
-                const style = Object.assign(columnStyle(column), {
-                  cursor: 'pointer',
-                  fontSize: '11px'
-                });
-                return (
-                  <th
-                    className="node-details-generic-table-header"
-                    key={column.id} style={style} onClick={onHeaderClick}>
-                    {isSortedAsc
-                      && <span className="node-details-table-header-sorter fa fa-caret-up" />}
-                    {isSortedDesc
-                      && <span className="node-details-table-header-sorter fa fa-caret-down" />}
-                    {column.label}
-                  </th>
-                );
-              })}
+              {columns.map(column => this.renderHeader(column))}
             </tr>
           </thead>
           <tbody>
@@ -106,7 +103,7 @@ export default class NodeDetailsGenericTable extends React.Component {
               <tr className="node-details-generic-table-row" key={row.id}>
                 {columns.map((column) => {
                   const value = row.entries[column.id];
-                  const match = matches.get(column.id);
+                  const match = matches.get(column.id + row.id);
                   return (
                     <td
                       className="node-details-generic-table-field-value truncate"
