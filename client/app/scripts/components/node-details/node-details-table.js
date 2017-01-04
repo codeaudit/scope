@@ -2,13 +2,15 @@ import React from 'react';
 import classNames from 'classnames';
 import { find, get, union, sortBy, groupBy, concat } from 'lodash';
 
+import { NODE_DETAILS_DATA_ROWS_DEFAULT_LIMIT } from '../../constants/limits';
+
 import ShowMore from '../show-more';
 import NodeDetailsTableRow from './node-details-table-row';
 import NodeDetailsTableHeaders from './node-details-table-headers';
 import { ipToPaddedString } from '../../utils/string-utils';
 import {
-  isIP, isNumber, defaultSortDesc, getColumnsStyles
-} from '../../utils/node-details-table-utils';
+  isIP, isNumber, defaultSortDesc, getTableColumnsStyles
+} from '../../utils/node-details-utils';
 
 
 function getDefaultSortedBy(columns, nodes) {
@@ -116,9 +118,8 @@ export default class NodeDetailsTable extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    this.DEFAULT_LIMIT = 5;
     this.state = {
-      limit: props.limit || this.DEFAULT_LIMIT,
+      limit: props.limit || NODE_DETAILS_DATA_ROWS_DEFAULT_LIMIT,
       sortedDesc: this.props.sortedDesc,
       sortedBy: this.props.sortedBy
     };
@@ -132,7 +133,7 @@ export default class NodeDetailsTable extends React.Component {
   }
 
   handleLimitClick() {
-    const limit = this.state.limit ? 0 : this.DEFAULT_LIMIT;
+    const limit = this.state.limit ? 0 : NODE_DETAILS_DATA_ROWS_DEFAULT_LIMIT;
     this.setState({ limit });
   }
 
@@ -159,7 +160,7 @@ export default class NodeDetailsTable extends React.Component {
 
     const className = classNames('node-details-table-wrapper-wrapper', this.props.className);
     const headers = this.getColumnHeaders();
-    const styles = getColumnsStyles(headers);
+    const styles = getTableColumnsStyles(headers);
 
     return (
       <div className={className} style={this.props.style}>

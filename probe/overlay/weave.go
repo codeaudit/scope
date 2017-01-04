@@ -46,7 +46,7 @@ const (
 	WeavePluginTableID                     = "weave_plugin_table"
 	WeavePluginStatus                      = "weave_plugin_status"
 	WeavePluginDriver                      = "weave_plugin_driver"
-	WeaveConnectionsIP                     = "weave_connection_ip"
+	WeaveConnectionsConnection             = "weave_connection_connection"
 	WeaveConnectionsState                  = "weave_connection_state"
 	WeaveConnectionsInfo                   = "weave_connection_info"
 	WeaveConnectionsTablePrefix            = "weave_connections_table_"
@@ -118,19 +118,18 @@ var (
 		},
 		WeaveConnectionsTablePrefix: {
 			ID:     WeaveConnectionsTablePrefix,
-			Label:  "Connections",
+			Label:  "Connections (old)",
 			Type:   report.PropertyListType,
 			Prefix: WeaveConnectionsTablePrefix,
 		},
 		WeaveConnectionsMulticolumnTablePrefix: {
 			ID:     WeaveConnectionsMulticolumnTablePrefix,
-			Label:  "Connections (new)",
 			Type:   report.MulticolumnTableType,
 			Prefix: WeaveConnectionsMulticolumnTablePrefix,
 			Columns: []report.Column{
 				report.Column{
-					ID:    WeaveConnectionsIP,
-					Label: "IP",
+					ID:    WeaveConnectionsConnection,
+					Label: "Connections",
 				},
 				report.Column{
 					ID:    WeaveConnectionsState,
@@ -491,9 +490,9 @@ func getConnectionsTable(router weave.Router) []report.Row {
 		table = append(table, report.Row{
 			ID: conn.Address,
 			Entries: map[string]string{
-				WeaveConnectionsIP:    fmt.Sprintf("%s %s", arrow, conn.Address),
-				WeaveConnectionsState: conn.State,
-				WeaveConnectionsInfo:  conn.Info,
+				WeaveConnectionsConnection: fmt.Sprintf("%s %s", arrow, conn.Address),
+				WeaveConnectionsState:      conn.State,
+				WeaveConnectionsInfo:       conn.Info,
 			},
 		})
 	}

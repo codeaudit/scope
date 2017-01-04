@@ -5,7 +5,7 @@ import { Map as makeMap } from 'immutable';
 
 import { clickCloseDetails, clickShowTopologyForNode } from '../actions/app-actions';
 import { brightenColor, getNeutralColor, getNodeColorDark } from '../utils/color-utils';
-import { isGenericTable, isPropertyList } from '../utils/node-details-table-utils';
+import { isGenericTable, isPropertyList } from '../utils/node-details-utils';
 import { resetDocumentTitle, setDocumentTitle } from '../utils/title-utils';
 
 import MatchedText from './matched-text';
@@ -213,7 +213,7 @@ class NodeDetails extends React.Component {
               return (
                 <div className="node-details-content-section" key={table.id}>
                   <div className="node-details-content-section-header">
-                    {table.label}
+                    {table.label.length > 0 && table.label}
                     {table.truncationCount > 0 && <span
                       className="node-details-content-section-header-warning">
                       <Warning text={getTruncationText(table.truncationCount)} />

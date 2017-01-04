@@ -1,5 +1,5 @@
 import React from 'react';
-import { defaultSortDesc, getColumnsStyles } from '../../utils/node-details-table-utils';
+import { defaultSortDesc, getTableColumnsStyles } from '../../utils/node-details-utils';
 import { NODE_DETAILS_TABLE_CW, NODE_DETAILS_TABLE_XS_LABEL } from '../../constants/styles';
 
 
@@ -15,7 +15,7 @@ export default class NodeDetailsTableHeaders extends React.Component {
 
   render() {
     const { headers, sortedBy, sortedDesc } = this.props;
-    const colStyles = getColumnsStyles(headers);
+    const colStyles = getTableColumnsStyles(headers);
     return (
       <tr>
         {headers.map((header, index) => {

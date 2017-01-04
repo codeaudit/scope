@@ -60,9 +60,9 @@ export const NODE_DETAILS_TABLE_COLUMN_WIDTHS = {
   kubernetes_state: NODE_DETAILS_TABLE_CW.M,
 
   // weave connections
-  weave_connection_ip: NODE_DETAILS_TABLE_CW.XXL,
-  weave_connection_state: NODE_DETAILS_TABLE_CW.M,
-  weave_connection_info: NODE_DETAILS_TABLE_CW.XXL,
+  weave_connection_connection: NODE_DETAILS_TABLE_CW.XXL,
+  weave_connection_state: NODE_DETAILS_TABLE_CW.L,
+  weave_connection_info: NODE_DETAILS_TABLE_CW.XL,
 };
 
 export const NODE_DETAILS_TABLE_XS_LABEL = {

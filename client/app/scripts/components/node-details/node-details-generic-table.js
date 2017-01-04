@@ -2,7 +2,10 @@ import React from 'react';
 import { Map as makeMap } from 'immutable';
 import { sortBy } from 'lodash';
 
-import { isNumber, getColumnsStyles } from '../../utils/node-details-table-utils';
+import { NODE_DETAILS_DATA_ROWS_DEFAULT_LIMIT } from '../../constants/limits';
+import {
+  isNumber, getTableColumnsStyles, genericTableEntryKey
+} from '../../utils/node-details-utils';
 import NodeDetailsTableHeaders from './node-details-table-headers';
 import MatchedText from '../matched-text';
 import ShowMore from '../show-more';
@@ -10,8 +13,7 @@ import ShowMore from '../show-more';
 
 function sortedRows(rows, columns, sortedBy, sortedDesc) {
   const column = columns.find(c => c.id === sortedBy);
-  const orderedRows = sortBy(rows, row => row.id);
-  const sorted = sortBy(orderedRows, (row) => {
+  const sorted = sortBy(rows, (row) => {
     let value = row.entries[sortedBy];
     if (isNumber(column)) {
       value = parseFloat(value);
@@ -27,9 +29,8 @@ function sortedRows(rows, columns, sortedBy, sortedDesc) {
 export default class NodeDetailsGenericTable extends React.Component {
   constructor(props, context) {
     super(props, context);
-    this.DEFAULT_LIMIT = 5;
     this.state = {
-      limit: this.DEFAULT_LIMIT,
+      limit: NODE_DETAILS_DATA_ROWS_DEFAULT_LIMIT,
       sortedBy: props.columns[0].id,
       sortedDesc: true
     };
@@ -42,27 +43,33 @@ export default class NodeDetailsGenericTable extends React.Component {
   }
 
   handleLimitClick() {
-    const limit = this.state.limit ? 0 : this.DEFAULT_LIMIT;
-    this.setState({limit});
+    this.setState({
+      limit: this.state.limit ? 0 : NODE_DETAILS_DATA_ROWS_DEFAULT_LIMIT
+    });
   }
 
   render() {
     const { sortedBy, sortedDesc } = this.state;
     const { columns, matches = makeMap() } = this.props;
-    let rows = this.props.rows;
-    let notShown = 0;
-    const limited = rows && this.state.limit > 0 && rows.length > this.state.limit;
     const expanded = this.state.limit === 0;
-    if (rows && limited) {
-      const hasNotShownMatch = rows.filter((row, index) => index >= this.state.limit
-        && matches.has(row.id)).length > 0;
-      if (!hasNotShownMatch) {
-        notShown = rows.length - this.DEFAULT_LIMIT;
+
+    // Stabilize the order of rows
+    let rows = sortBy(this.props.rows || [], row => row.id);
+    let notShown = 0;
+
+    // If there are rows that would be hidden behind 'show more', keep them
+    // expanded if any of them match the search query; otherwise hide them.
+    if (this.state.limit > 0 && rows.length > this.state.limit) {
+      const hasHiddenMatch = rows.slice(this.state.limit).some(row =>
+        columns.some(column => matches.has(genericTableEntryKey(row, column)))
+      );
+      if (!hasHiddenMatch) {
+        notShown = rows.length - NODE_DETAILS_DATA_ROWS_DEFAULT_LIMIT;
         rows = rows.slice(0, this.state.limit);
       }
     }
 
-    const styles = getColumnsStyles(columns);
+    const styles = getTableColumnsStyles(columns);
     return (
       <div className="node-details-generic-table">
         <table>
@@ -78,11 +85,11 @@ export default class NodeDetailsGenericTable extends React.Component {
             {sortedRows(rows, columns, sortedBy, sortedDesc).map(row => (
               <tr className="node-details-generic-table-row" key={row.id}>
                 {columns.map((column, index) => {
+                  const match = matches.get(genericTableEntryKey(row, column));
                   const value = row.entries[column.id];
-                  const match = matches.get(column.id + row.id);
                   return (
                     <td
-                      className="node-details-generic-table-field-value truncate"
+                      className="node-details-generic-table-value truncate"
                       title={value} key={column.id} style={styles[index]}>
                       <MatchedText text={value} match={match} />
                     </td>
