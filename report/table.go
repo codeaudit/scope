@@ -117,12 +117,14 @@ func (node Node) ExtractTable(template TableTemplate) (rows []Row, truncationCou
 	return rows, truncationCount
 }
 
+// Column is the type for multi-column tables in the UI.
 type Column struct {
 	ID       string `json:"id"`
 	Label    string `json:"label"`
 	DataType string `json:"dataType"`
 }
 
+// Row is the type that holds the table data for the UI.
 type Row struct {
 	ID      string            `json:"id"`
 	Entries map[string]string `json:"entries"`

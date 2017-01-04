@@ -127,15 +127,15 @@ var (
 			Type:   report.MulticolumnTableType,
 			Prefix: WeaveConnectionsMulticolumnTablePrefix,
 			Columns: []report.Column{
-				report.Column{
+				{
 					ID:    WeaveConnectionsConnection,
 					Label: "Connections",
 				},
-				report.Column{
+				{
 					ID:    WeaveConnectionsState,
 					Label: "State",
 				},
-				report.Column{
+				{
 					ID:    WeaveConnectionsInfo,
 					Label: "Info",
 				},
