@@ -116,12 +116,6 @@ var (
 				WeavePluginDriver: "Driver Name",
 			},
 		},
-		WeaveConnectionsTablePrefix: {
-			ID:     WeaveConnectionsTablePrefix,
-			Label:  "Connections (old)",
-			Type:   report.PropertyListType,
-			Prefix: WeaveConnectionsTablePrefix,
-		},
 		WeaveConnectionsMulticolumnTablePrefix: {
 			ID:     WeaveConnectionsMulticolumnTablePrefix,
 			Type:   report.MulticolumnTableType,
@@ -140,6 +134,13 @@ var (
 					Label: "Info",
 				},
 			},
+		},
+		// Kept for backward-compatibility.
+		WeaveConnectionsTablePrefix: {
+			ID:     WeaveConnectionsTablePrefix,
+			Label:  "Connections",
+			Type:   report.PropertyListType,
+			Prefix: WeaveConnectionsTablePrefix,
 		},
 	}
 )

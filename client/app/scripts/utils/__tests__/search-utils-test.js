@@ -281,8 +281,8 @@ describe('SearchUtils', () => {
       const nodes = nodeSets.someNodes;
       const matches = fun(nodes, {query: 'Value 1'});
       expect(matches.size).toEqual(2);
-      expect(matches.getIn(['n2', 'labels']).size).toEqual(1);
-      expect(matches.getIn(['n2', 'labels', 'label1']).text).toBe('Label Value 1');
+      expect(matches.getIn(['n2', 'property-lists']).size).toEqual(1);
+      expect(matches.getIn(['n2', 'property-lists', 'label1']).text).toBe('Label Value 1');
     });
 
     it('should match on a generic table values', () => {

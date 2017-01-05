@@ -169,7 +169,7 @@ type Column struct {
 	DataType string `json:"dataType"`
 }
 
-// Row is the type that holds the table data for the UI.
+// Row is the type that holds the table data for the UI. Entries map from column ID to cell value.
 type Row struct {
 	ID      string            `json:"id"`
 	Entries map[string]string `json:"entries"`

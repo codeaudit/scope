@@ -11,9 +11,9 @@ import { resetDocumentTitle, setDocumentTitle } from '../utils/title-utils';
 import MatchedText from './matched-text';
 import NodeDetailsControls from './node-details/node-details-controls';
 import NodeDetailsGenericTable from './node-details/node-details-generic-table';
+import NodeDetailsPropertyList from './node-details/node-details-property-list';
 import NodeDetailsHealth from './node-details/node-details-health';
 import NodeDetailsInfo from './node-details/node-details-info';
-import NodeDetailsLabels from './node-details/node-details-labels';
 import NodeDetailsRelatives from './node-details/node-details-relatives';
 import NodeDetailsTable from './node-details/node-details-table';
 import Warning from './warning';
@@ -242,9 +242,9 @@ class NodeDetails extends React.Component {
       );
     } else if (isPropertyList(table)) {
       return (
-        <NodeDetailsLabels
+        <NodeDetailsPropertyList
           rows={table.rows} controls={table.controls}
-          matches={nodeMatches.get('labels')}
+          matches={nodeMatches.get('property-lists')}
         />
       );
     }
