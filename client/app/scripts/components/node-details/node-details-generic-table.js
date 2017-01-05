@@ -53,8 +53,7 @@ export default class NodeDetailsGenericTable extends React.Component {
     const { columns, matches = makeMap() } = this.props;
     const expanded = this.state.limit === 0;
 
-    // Stabilize the order of rows
-    let rows = sortBy(this.props.rows || [], row => row.id);
+    let rows = this.props.rows || [];
     let notShown = 0;
 
     // If there are rows that would be hidden behind 'show more', keep them

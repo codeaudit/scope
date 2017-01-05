@@ -21,9 +21,9 @@ const (
 )
 
 // WithTableTruncationInformation appends table truncation info to the node, returning the new node.
-func (node Node) WithTableTruncationInformation(prefix string, truncatedRowsCount int) Node {
-	if truncatedRowsCount > MaxTableRows {
-		truncationCount := fmt.Sprintf("%d", truncatedRowsCount-MaxTableRows)
+func (node Node) WithTableTruncationInformation(prefix string, totalRowsCount int) Node {
+	if totalRowsCount > MaxTableRows {
+		truncationCount := fmt.Sprintf("%d", totalRowsCount-MaxTableRows)
 		node = node.WithLatest(TruncationCountPrefix+prefix, mtime.Now(), truncationCount)
 	}
 	return node
@@ -31,27 +31,32 @@ func (node Node) WithTableTruncationInformation(prefix string, truncatedRowsCoun
 
 // AddPrefixMulticolumnTable appends arbitrary rows to the Node, returning a new node.
 func (node Node) AddPrefixMulticolumnTable(prefix string, rows []Row) Node {
-	truncatedRows := rows[:MaxTableRows]
-	for _, row := range truncatedRows {
+	addedRowsCount := 0
+	for _, row := range rows {
+		if addedRowsCount >= MaxTableRows {
+			break
+		}
+		// Add all the row values as separate entries
 		for columnID, value := range row.Entries {
 			key := strings.Join([]string{row.ID, columnID}, TableEntryKeySeparator)
 			node = node.WithLatest(prefix+key, mtime.Now(), value)
 		}
+		addedRowsCount++
 	}
-	return node.WithTableTruncationInformation(prefix, len(truncatedRows))
+	return node.WithTableTruncationInformation(prefix, len(rows))
 }
 
-// AddPrefixLabels appends arbitrary key-value pairs to the Node, returning a new node.
-func (node Node) AddPrefixLabels(prefix string, labels map[string]string) Node {
-	addedLabelsCount := 0
-	for key, value := range labels {
-		if addedLabelsCount >= MaxTableRows {
+// AddPrefixPropertyList appends arbitrary key-value pairs to the Node, returning a new node.
+func (node Node) AddPrefixPropertyList(prefix string, propertyList map[string]string) Node {
+	addedPropertiesCount := 0
+	for label, value := range propertyList {
+		if addedPropertiesCount >= MaxTableRows {
 			break
 		}
-		node = node.WithLatest(prefix+key, mtime.Now(), value)
-		addedLabelsCount++
+		node = node.WithLatest(prefix+label, mtime.Now(), value)
+		addedPropertiesCount++
 	}
-	return node.WithTableTruncationInformation(prefix, addedLabelsCount)
+	return node.WithTableTruncationInformation(prefix, len(propertyList))
 }
 
 // WithoutPrefix returns the string with trimmed prefix and a
