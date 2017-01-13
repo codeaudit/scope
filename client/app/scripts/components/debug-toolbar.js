@@ -203,7 +203,7 @@ class DebugToolbar extends React.Component {
         this.asyncDispatch(receiveNodesDelta({
           remove: [randomNode]
         }));
-      }, 1000);
+      }, 500);
     }
   }
 
@@ -229,7 +229,7 @@ class DebugToolbar extends React.Component {
           }
           this.asyncDispatch(setAppState(state => state.set('nodes', nextNodes)));
         }
-      }, 1000);
+      }, 100);
     }
   }
 
