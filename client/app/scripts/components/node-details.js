@@ -19,7 +19,7 @@ import NodeDetailsTable from './node-details/node-details-table';
 import Warning from './warning';
 
 
-const logError = debug('scope:error');
+const log = debug('scope:node-details');
 
 function getTruncationText(count) {
   return 'This section was too long to be handled efficiently and has been truncated'
@@ -213,7 +213,7 @@ class NodeDetails extends React.Component {
               return (
                 <div className="node-details-content-section" key={table.id}>
                   <div className="node-details-content-section-header">
-                    {table.label.length > 0 && table.label}
+                    {table.label && table.label.length > 0 && table.label}
                     {table.truncationCount > 0 && <span
                       className="node-details-content-section-header-warning">
                       <Warning text={getTruncationText(table.truncationCount)} />
@@ -249,7 +249,7 @@ class NodeDetails extends React.Component {
       );
     }
 
-    logError(`Undefined type '${table.type}' for table ${table.id}`);
+    log(`Undefined type '${table.type}' for table ${table.id}`);
     return null;
   }
 

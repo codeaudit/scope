@@ -68,7 +68,7 @@ func WithoutPrefix(s string, prefix string) (string, bool) {
 
 // ExtractMulticolumnTable returns the rows to build a multicolumn table from this node
 func (node Node) ExtractMulticolumnTable(template TableTemplate) (rows []Row) {
-	rowsByID := map[string]Row{}
+	rowsMapByID := map[string]Row{}
 
 	// Itearate through the whole of our map to extract all the values with the key
 	// with the given prefix. Since multicolumn tables don't support fixed rows (yet),
@@ -82,64 +82,56 @@ func (node Node) ExtractMulticolumnTable(template TableTemplate) (rows []Row) {
 			ids := strings.Split(keyWithoutPrefix, TableEntryKeySeparator)
 			rowID, columnID := ids[0], ids[1]
 			// If the row with the given ID doesn't yet exist, we create an empty one.
-			if _, ok := rowsByID[rowID]; !ok {
-				rowsByID[rowID] = Row{
+			if _, ok := rowsMapByID[rowID]; !ok {
+				rowsMapByID[rowID] = Row{
 					ID:      rowID,
 					Entries: map[string]string{},
 				}
 			}
 			// At this point, the row with that ID always exists, so we just update the value.
-			rowsByID[rowID].Entries[columnID] = value
+			rowsMapByID[rowID].Entries[columnID] = value
 		}
 	})
 
-	// Gather a sorted list of rows' IDs.
-	ids := make([]string, 0, len(rowsByID))
-	for id := range rowsByID {
-		ids = append(ids, id)
+	// Gather a list of rows.
+	rows = make([]Row, 0, len(rowsMapByID))
+	for _, row := range rowsMapByID {
+		rows = append(rows, row)
 	}
-	sort.Strings(ids)
 
-	// Return the rows in the sorted order.
-	rows = []Row{}
-	for _, id := range ids {
-		rows = append(rows, rowsByID[id])
-	}
+	// Return the rows sorted by ID.
+	sort.Sort(rowsByID(rows))
 	return rows
 }
 
 // ExtractPropertyList returns the rows to build a property list from this node
 func (node Node) ExtractPropertyList(template TableTemplate) (rows []Row) {
-	valuesByLabel := map[string]string{}
+	valuesMapByLabel := map[string]string{}
 
 	// Itearate through the whole of our map to extract all the values with the key
 	// with the given prefix as well as the keys corresponding to the fixed table rows.
 	node.Latest.ForEach(func(key string, _ time.Time, value string) {
 		if label, ok := template.FixedRows[key]; ok {
-			valuesByLabel[label] = value
+			valuesMapByLabel[label] = value
 		} else if label, ok := WithoutPrefix(key, template.Prefix); ok {
-			valuesByLabel[label] = value
+			valuesMapByLabel[label] = value
 		}
 	})
 
-	// Gather a sorted list of labels.
-	labels := make([]string, 0, len(valuesByLabel))
-	for label := range valuesByLabel {
-		labels = append(labels, label)
-	}
-	sort.Strings(labels)
-
-	// Return the label-value formatted rows sorted by label.
-	rows = []Row{}
-	for _, label := range labels {
+	// Gather a label-value formatted list of rows.
+	rows = make([]Row, 0, len(valuesMapByLabel))
+	for label, value := range valuesMapByLabel {
 		rows = append(rows, Row{
 			ID: "label_" + label,
 			Entries: map[string]string{
 				"label": label,
-				"value": valuesByLabel[label],
+				"value": value,
 			},
 		})
 	}
+
+	// Return the rows sorted by ID.
+	sort.Sort(rowsByID(rows))
 	return rows
 }
 
@@ -174,6 +166,12 @@ type Row struct {
 	ID      string            `json:"id"`
 	Entries map[string]string `json:"entries"`
 }
+
+type rowsByID []Row
+
+func (t rowsByID) Len() int           { return len(t) }
+func (t rowsByID) Swap(i, j int)      { t[i], t[j] = t[j], t[i] }
+func (t rowsByID) Less(i, j int) bool { return t[i].ID < t[j].ID }
 
 // Copy returns a copy of the Row.
 func (r Row) Copy() Row {
